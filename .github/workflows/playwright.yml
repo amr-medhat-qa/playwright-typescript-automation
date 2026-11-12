@@ -14,8 +14,32 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  quality:
+    name: Lint, format & type check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: ESLint
+        run: npm run lint
+
+      - name: Prettier
+        run: npm run format:check
+
   test:
     name: ${{ matrix.project }}
+    needs: quality
     runs-on: ubuntu-latest
     timeout-minutes: 20
     strategy:
@@ -34,9 +58,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Type check
-        run: npm run typecheck
-
       - name: Install browsers
         if: matrix.project != 'api'
         run: npx playwright install --with-deps ${{ matrix.project == 'ui-firefox' && 'firefox' || 'chromium' }}
@@ -52,10 +73,18 @@ jobs:
           path: blob-report/
           retention-days: 1
 
+      - name: Upload Allure results
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results-${{ matrix.project }}
+          path: allure-results/
+          retention-days: 1
+
   report:
-    name: Merge HTML report
+    name: Build reports
     needs: test
-    if: ${{ !cancelled() }}
+    if: ${{ !cancelled() && needs.test.result != 'skipped' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -64,6 +93,11 @@ jobs:
         with:
           node-version: 22
           cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
 
       - run: npm ci
 
@@ -74,13 +108,23 @@ jobs:
           pattern: blob-report-*
           merge-multiple: true
 
-      - name: Merge into a single HTML report
+      - name: Download Allure results
+        uses: actions/download-artifact@v4
+        with:
+          path: allure-results
+          pattern: allure-results-*
+          merge-multiple: true
+
+      - name: Merge Playwright HTML report
         run: npx playwright merge-reports --reporter html ./all-blob-reports
 
-      - name: Upload HTML report
+      - name: Generate Allure report
+        run: npx allure generate allure-results --clean -o playwright-report/allure
+
+      - name: Upload reports
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report
+          name: test-reports
           path: playwright-report/
           retention-days: 14
 
@@ -91,9 +135,9 @@ jobs:
           path: playwright-report/
 
   deploy:
-    name: Publish report to GitHub Pages
+    name: Publish reports to GitHub Pages
     needs: report
-    if: ${{ !cancelled() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' }}
+    if: ${{ !cancelled() && needs.report.result == 'success' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' }}
     runs-on: ubuntu-latest
     permissions:
       pages: write

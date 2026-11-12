@@ -2,16 +2,20 @@
 
 [![Playwright Tests](https://github.com/amr-medhat-qa/playwright-typescript-automation/actions/workflows/playwright.yml/badge.svg)](https://github.com/amr-medhat-qa/playwright-typescript-automation/actions/workflows/playwright.yml)
 [![Test Report](https://img.shields.io/badge/report-live-2ea44f?logo=playwright)](https://amr-medhat-qa.github.io/playwright-typescript-automation/)
+[![Allure Report](https://img.shields.io/badge/Allure-report-ff6a00)](https://amr-medhat-qa.github.io/playwright-typescript-automation/allure/)
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)
+![ESLint](https://img.shields.io/badge/lint-ESLint-4B32C3?logo=eslint&logoColor=white)
+![Prettier](https://img.shields.io/badge/code_style-Prettier-F7B93E?logo=prettier&logoColor=black)
 
-📊 **[Latest test report →](https://amr-medhat-qa.github.io/playwright-typescript-automation/)** (published automatically after every run on `main`)
+📊 **Live reports** (published automatically after every run on `main`):
+**[Playwright HTML report →](https://amr-medhat-qa.github.io/playwright-typescript-automation/)** · **[Allure report →](https://amr-medhat-qa.github.io/playwright-typescript-automation/allure/)**
 
 UI and API test automation framework built with **Playwright** and **TypeScript**, running on GitHub Actions.
 
-| Layer | Application under test | What's covered |
-|-------|------------------------|----------------|
-| UI (E2E) | [SauceDemo](https://www.saucedemo.com) — demo e-commerce store | Login (positive / negative / data-driven), product sorting, cart, full checkout with price calculation checks, form validation |
-| API | [Restful-Booker](https://restful-booker.herokuapp.com/apidoc) — hotel booking REST API | Token auth, full CRUD (POST / GET / PUT / PATCH / DELETE), filtering, authorization (403), not-found (404) |
+| Layer    | Application under test                                                                 | What's covered                                                                                                                 |
+| -------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| UI (E2E) | [SauceDemo](https://www.saucedemo.com) — demo e-commerce store                         | Login (positive / negative / data-driven), product sorting, cart, full checkout with price calculation checks, form validation |
+| API      | [Restful-Booker](https://restful-booker.herokuapp.com/apidoc) — hotel booking REST API | Token auth, full CRUD (POST / GET / PUT / PATCH / DELETE), filtering, authorization (403), not-found (404)                     |
 
 ## Highlights
 
@@ -23,7 +27,8 @@ UI and API test automation framework built with **Playwright** and **TypeScript*
 - **Cross-browser** — Chromium and Firefox
 - **Tags** (`@smoke`) for running a fast subset
 - **CI** on every push / PR plus a scheduled daily run — reports from all jobs are merged into one HTML report (traces, screenshots, videos on failure) and **published to GitHub Pages**
-- **Strict TypeScript** with a type-check step in CI
+- **Allure reporting** — test history, categories and environment info, published next to the Playwright report
+- **Quality gate** — strict TypeScript, ESLint (incl. `eslint-plugin-playwright`: no `test.only`, no hard waits) and Prettier run before any test job
 
 ## Project structure
 
@@ -47,30 +52,34 @@ npm ci
 npx playwright install chromium firefox
 ```
 
-| Command | Description |
-|---------|-------------|
-| `npm test` | Run everything |
-| `npm run test:api` | API tests only |
-| `npm run test:ui` | UI tests (Chromium + Firefox) |
-| `npm run test:smoke` | `@smoke` tagged tests only |
-| `npm run test:headed` | UI tests in a visible browser |
-| `npm run report` | Open the last HTML report |
-| `npm run typecheck` | TypeScript type check |
+| Command                | Description                                   |
+| ---------------------- | --------------------------------------------- |
+| `npm test`             | Run everything                                |
+| `npm run test:api`     | API tests only                                |
+| `npm run test:ui`      | UI tests (Chromium + Firefox)                 |
+| `npm run test:smoke`   | `@smoke` tagged tests only                    |
+| `npm run test:headed`  | UI tests in a visible browser                 |
+| `npm run report`       | Open the last HTML report                     |
+| `npm run allure:serve` | Build and open the Allure report (needs Java) |
+| `npm run check`        | Type check + lint + format check              |
+| `npm run lint:fix`     | Auto-fix lint issues                          |
+| `npm run format`       | Format all files with Prettier                |
 
 ### Configuration
 
 All values have working defaults (public demo data). They can be overridden with environment variables:
 
-| Variable | Default |
-|----------|---------|
-| `UI_BASE_URL` | `https://www.saucedemo.com` |
-| `API_BASE_URL` | `https://restful-booker.herokuapp.com` |
-| `SAUCE_PASSWORD` | `secret_sauce` |
-| `BOOKER_USERNAME` / `BOOKER_PASSWORD` | `admin` / `password123` |
+| Variable                              | Default                                |
+| ------------------------------------- | -------------------------------------- |
+| `UI_BASE_URL`                         | `https://www.saucedemo.com`            |
+| `API_BASE_URL`                        | `https://restful-booker.herokuapp.com` |
+| `SAUCE_PASSWORD`                      | `secret_sauce`                         |
+| `BOOKER_USERNAME` / `BOOKER_PASSWORD` | `admin` / `password123`                |
 
 ## Notes on the APIs under test
 
 Restful-Booker deliberately contains quirks; tests assert the **actual documented behavior** and call it out in comments:
+
 - invalid credentials on `/auth` return `200` with `{ "reason": "Bad credentials" }` instead of `401`
 - `DELETE /booking/:id` returns `201`
 
