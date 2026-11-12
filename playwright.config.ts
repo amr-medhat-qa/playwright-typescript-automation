@@ -13,9 +13,23 @@ export default defineConfig({
   workers: isCI ? 2 : undefined,
   timeout: 30_000,
   expect: { timeout: 7_000 },
-  reporter: isCI
-    ? [['github'], ['list'], ['blob']] // each CI job's blob report is merged into one HTML report
-    : [['list'], ['html', { open: 'never' }]],
+  reporter: [
+    ...(isCI
+      ? ([['github'], ['list'], ['blob']] as const) // each CI job's blob report is merged into one HTML report
+      : ([['list'], ['html', { open: 'never' }]] as const)),
+    [
+      'allure-playwright',
+      {
+        resultsDir: 'allure-results',
+        environmentInfo: {
+          UI_BASE_URL,
+          API_BASE_URL,
+          Node: process.version,
+          OS: process.platform,
+        },
+      },
+    ],
+  ],
 
   use: {
     trace: 'on-first-retry',
