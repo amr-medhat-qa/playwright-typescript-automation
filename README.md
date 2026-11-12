@@ -1,5 +1,11 @@
 # Playwright + TypeScript Test Automation
 
+[![Playwright Tests](https://github.com/amr-medhat-qa/playwright-typescript-automation/actions/workflows/playwright.yml/badge.svg)](https://github.com/amr-medhat-qa/playwright-typescript-automation/actions/workflows/playwright.yml)
+[![Test Report](https://img.shields.io/badge/report-live-2ea44f?logo=playwright)](https://amr-medhat-qa.github.io/playwright-typescript-automation/)
+![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)
+
+📊 **[Latest test report →](https://amr-medhat-qa.github.io/playwright-typescript-automation/)** (published automatically after every run on `main`)
+
 UI and API test automation framework built with **Playwright** and **TypeScript**, running on GitHub Actions.
 
 | Layer | Application under test | What's covered |
@@ -16,7 +22,7 @@ UI and API test automation framework built with **Playwright** and **TypeScript*
 - **Data-driven tests** for validation scenarios
 - **Cross-browser** — Chromium and Firefox
 - **Tags** (`@smoke`) for running a fast subset
-- **CI** on every push / PR plus a scheduled daily run, with HTML reports, traces, screenshots and videos on failure
+- **CI** on every push / PR plus a scheduled daily run — reports from all jobs are merged into one HTML report (traces, screenshots, videos on failure) and **published to GitHub Pages**
 - **Strict TypeScript** with a type-check step in CI
 
 ## Project structure
