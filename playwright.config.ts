@@ -14,7 +14,7 @@ export default defineConfig({
   timeout: 30_000,
   expect: { timeout: 7_000 },
   reporter: isCI
-    ? [['github'], ['list'], ['html', { open: 'never' }]]
+    ? [['github'], ['list'], ['blob']] // each CI job's blob report is merged into one HTML report
     : [['list'], ['html', { open: 'never' }]],
 
   use: {
