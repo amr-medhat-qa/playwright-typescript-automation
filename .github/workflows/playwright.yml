@@ -1,0 +1,49 @@
+name: Playwright Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 * * 1-5' # weekdays 06:00 UTC — catches changes in the apps under test
+
+jobs:
+  test:
+    name: ${{ matrix.project }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [api, ui-chromium, ui-firefox]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Install browsers
+        if: matrix.project != 'api'
+        run: npx playwright install --with-deps ${{ matrix.project == 'ui-firefox' && 'firefox' || 'chromium' }}
+
+      - name: Run tests
+        run: npx playwright test --project=${{ matrix.project }}
+
+      - name: Upload HTML report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ matrix.project }}
+          path: playwright-report/
+          retention-days: 14
