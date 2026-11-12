@@ -26,7 +26,10 @@ export default tseslint.config(
       'playwright/no-focused-test': 'error', // no test.only committed
       'playwright/no-wait-for-timeout': 'error', // no hard waits
       'playwright/no-skipped-test': 'warn',
-      'playwright/expect-expect': ['warn', { assertFunctionNames: ['expectLoaded'] }],
+      'playwright/expect-expect': [
+        'warn',
+        { assertFunctionNames: ['expectLoaded', 'expectNoWcagViolations', 'expectOnlyKnownBestPracticeIssues'] },
+      ],
     },
   },
 

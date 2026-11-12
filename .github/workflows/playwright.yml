@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      update_visual_baselines:
+        description: Regenerate ALL visual baselines on this branch (after an intended UI change)
+        type: boolean
+        default: false
   schedule:
     - cron: '0 6 * * 1-5' # weekdays 06:00 UTC — catches changes in the apps under test
 
@@ -42,13 +47,18 @@ jobs:
     needs: quality
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    permissions:
+      contents: write # lets the visual job commit newly generated baselines back to the branch
     strategy:
       fail-fast: false
       matrix:
-        project: [api, ui-chromium, ui-firefox]
+        project: [api, ui-chromium, ui-firefox, a11y, visual]
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          # check out the branch itself (not the PR merge commit) so baselines can be pushed back to it
+          ref: ${{ matrix.project == 'visual' && (github.head_ref || github.ref_name) || '' }}
 
       - uses: actions/setup-node@v4
         with:
@@ -61,6 +71,27 @@ jobs:
       - name: Install browsers
         if: matrix.project != 'api'
         run: npx playwright install --with-deps ${{ matrix.project == 'ui-firefox' && 'firefox' || 'chromium' }}
+
+      # Visual baselines must come from the same OS as the comparison (Linux), so CI creates them:
+      # missing ones are generated automatically; all are regenerated when requested via workflow_dispatch.
+      - name: Generate visual baselines
+        if: matrix.project == 'visual'
+        run: >
+          npx playwright test --project=visual --grep-invert @known-visual-bug --reporter=list
+          --update-snapshots=${{ inputs.update_visual_baselines && 'all' || 'missing' }}
+
+      - name: Commit new or updated baselines
+        if: matrix.project == 'visual'
+        run: |
+          git add tests/visual/__screenshots__
+          if git diff --cached --quiet; then
+            echo "Baselines unchanged."
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "Update visual baselines (generated on Linux CI)"
+            git push
+          fi
 
       - name: Run tests
         run: npx playwright test --project=${{ matrix.project }}

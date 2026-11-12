@@ -10,7 +10,7 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: isCI,
   retries: isCI ? 2 : 0,
-  workers: isCI ? 2 : undefined,
+  workers: isCI ? 2 : 6, // capped locally: running every project at once overloads Firefox
   timeout: 30_000,
   expect: { timeout: 7_000 },
   reporter: [
@@ -47,6 +47,25 @@ export default defineConfig({
       name: 'ui-firefox',
       testDir: './tests/ui',
       use: { ...devices['Desktop Firefox'], baseURL: UI_BASE_URL, testIdAttribute: 'data-test' },
+    },
+    {
+      name: 'a11y',
+      testDir: './tests/a11y',
+      use: { ...devices['Desktop Chrome'], baseURL: UI_BASE_URL, testIdAttribute: 'data-test' },
+    },
+    {
+      // Baselines are generated on Linux (CI) so screenshots are compared on the same OS/fonts
+      name: 'visual',
+      testDir: './tests/visual',
+      snapshotPathTemplate: '{testDir}/__screenshots__/{testFilePath}/{arg}{ext}',
+      // Small absolute tolerance: absorbs anti-aliasing noise but catches a changed price or icon
+      expect: { toHaveScreenshot: { maxDiffPixels: 50, animations: 'disabled' } },
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: UI_BASE_URL,
+        testIdAttribute: 'data-test',
+        viewport: { width: 1280, height: 800 },
+      },
     },
     {
       name: 'api',

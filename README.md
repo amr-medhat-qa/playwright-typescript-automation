@@ -12,10 +12,30 @@
 
 UI and API test automation framework built with **Playwright** and **TypeScript**, running on GitHub Actions.
 
-| Layer    | Application under test                                                                 | What's covered                                                                                                                 |
-| -------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| UI (E2E) | [SauceDemo](https://www.saucedemo.com) — demo e-commerce store                         | Login (positive / negative / data-driven), product sorting, cart, full checkout with price calculation checks, form validation |
-| API      | [Restful-Booker](https://restful-booker.herokuapp.com/apidoc) — hotel booking REST API | Token auth, full CRUD (POST / GET / PUT / PATCH / DELETE), filtering, authorization (403), not-found (404)                     |
+| Layer         | Application under test                                                                 | What's covered                                                                                                                 |
+| ------------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| UI (E2E)      | [SauceDemo](https://www.saucedemo.com) — demo e-commerce store                         | Login (positive / negative / data-driven), product sorting, cart, full checkout with price calculation checks, form validation |
+| API           | [Restful-Booker](https://restful-booker.herokuapp.com/apidoc) — hotel booking REST API | Token auth, full CRUD (POST / GET / PUT / PATCH / DELETE), filtering, authorization (403), not-found (404)                     |
+| Accessibility | SauceDemo                                                                              | axe-core scans for **WCAG 2.1 AA** on every key page, tracked best-practice issues, keyboard-only login, accessible names      |
+| Visual        | SauceDemo                                                                              | Screenshot comparison of pages & components against Linux baselines, plus **detection of a real visual bug**                   |
+
+## Accessibility testing ♿
+
+Every key page (login, login error, inventory, cart, checkout) is scanned with **[axe-core](https://github.com/dequelabs/axe-core)**:
+
+- **WCAG 2.1 A/AA** — must have **zero** violations; any new one fails the build.
+- **Best practices** — current findings are tracked as a known list (`page-has-heading-one`, `region`): a _new_ issue fails, a _fixed_ one shows up as a diff.
+- The full axe result is attached to every test in the report.
+- Plus keyboard-only navigation and accessible-name checks.
+
+## Visual regression testing 📸
+
+`toHaveScreenshot()` compares pages and components with stored baselines (tolerance: 50 px, animations disabled).
+
+- **Why baselines are generated in CI:** rendering differs between Windows, macOS and Linux (fonts, anti-aliasing). Baselines are created on the same Linux runner that compares them — missing ones are generated and committed back to the branch automatically; all can be regenerated via **Run workflow → update visual baselines** after an intended UI change.
+- **Proof it works:** SauceDemo's `visual_user` is _functionally_ identical to a normal user — every functional test passes — but renders wrong images, prices, icon positions and alignment. The visual suite catches it (marked `@known-visual-bug` with `test.fail()`, diff image attached to the report):
+
+  > Functional tests answer _"does it work?"_ — visual tests answer _"does it look right?"_
 
 ## Highlights
 
@@ -33,7 +53,7 @@ UI and API test automation framework built with **Playwright** and **TypeScript*
 ## Project structure
 
 ```
-├── .github/workflows/playwright.yml   # CI pipeline (matrix: api, ui-chromium, ui-firefox)
+├── .github/workflows/playwright.yml   # CI pipeline (matrix: api, ui-chromium, ui-firefox, a11y, visual)
 ├── src/
 │   ├── api/BookingClient.ts           # API client
 │   ├── data/                          # test data & factories

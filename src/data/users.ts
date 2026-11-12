@@ -9,6 +9,8 @@ export const users = {
   lockedOut: { username: 'locked_out_user', password: PASSWORD },
   problem: { username: 'problem_user', password: PASSWORD },
   performanceGlitch: { username: 'performance_glitch_user', password: PASSWORD },
+  /** Renders the inventory with visual defects only — functionally everything still works. */
+  visual: { username: 'visual_user', password: PASSWORD },
 } as const;
 
 export type User = { username: string; password: string };
