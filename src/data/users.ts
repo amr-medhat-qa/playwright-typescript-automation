@@ -11,6 +11,8 @@ export const users = {
   performanceGlitch: { username: 'performance_glitch_user', password: PASSWORD },
   /** Renders the inventory with visual defects only — functionally everything still works. */
   visual: { username: 'visual_user', password: PASSWORD },
+  /** JS errors: some cart actions throw, sorting alerts, checkout cannot be finished. */
+  error: { username: 'error_user', password: PASSWORD },
 } as const;
 
 export type User = { username: string; password: string };
