@@ -1,4 +1,4 @@
-﻿name: Playwright Tests
+name: Playwright Tests
 
 on:
   push:
@@ -98,7 +98,7 @@ jobs:
 
       - name: Upload blob report
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: blob-report-${{ matrix.project }}
           path: blob-report/
@@ -106,7 +106,7 @@ jobs:
 
       - name: Upload Allure results
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: allure-results-${{ matrix.project }}
           path: allure-results/
@@ -153,7 +153,7 @@ jobs:
         run: npx allure generate allure-results --clean -o playwright-report/allure
 
       - name: Upload reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: test-reports
           path: playwright-report/
