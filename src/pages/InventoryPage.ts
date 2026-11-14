@@ -10,8 +10,16 @@ export class InventoryPage {
   readonly sortSelect: Locator;
   readonly cartLink: Locator;
   readonly cartBadge: Locator;
+  readonly menuButton: Locator;
+  readonly allItemsLink: Locator;
+  readonly logoutLink: Locator;
+  readonly resetAppLink: Locator;
 
   constructor(private readonly page: Page) {
+    this.menuButton = page.getByRole('button', { name: 'Open Menu' });
+    this.allItemsLink = page.getByTestId('inventory-sidebar-link');
+    this.logoutLink = page.getByTestId('logout-sidebar-link');
+    this.resetAppLink = page.getByTestId('reset-sidebar-link');
     this.title = page.getByTestId('title');
     this.items = page.getByTestId('inventory-item');
     this.itemNames = page.getByTestId('inventory-item-name');
@@ -54,5 +62,15 @@ export class InventoryPage {
 
   async openCart() {
     await this.cartLink.click();
+  }
+
+  async openMenu() {
+    await this.menuButton.click();
+    await expect(this.logoutLink).toBeVisible();
+  }
+
+  async logout() {
+    await this.openMenu();
+    await this.logoutLink.click();
   }
 }

@@ -1,0 +1,29 @@
+# Keeps dependencies up to date: Dependabot opens a PR for each update and CI tests it before merge.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      # one PR for all lint/format tooling instead of one per package
+      lint-and-format:
+        patterns: ['eslint*', '@eslint/*', 'typescript-eslint', 'prettier']
+      allure:
+        patterns: ['allure-*']
+    ignore:
+      # typescript-eslint does not support TypeScript 7 yet — revisit when it does
+      - dependency-name: typescript
+        versions: ['>=7']
+    commit-message:
+      prefix: deps
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    commit-message:
+      prefix: ci

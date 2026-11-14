@@ -1,4 +1,4 @@
-import { type Locator, type Page } from '@playwright/test';
+import { expect, type Locator, type Page } from '@playwright/test';
 
 export type CheckoutInfo = { firstName: string; lastName: string; postalCode: string };
 
@@ -30,7 +30,12 @@ export class CheckoutPage {
   }
 
   async fillInfo(info: CheckoutInfo) {
-    await this.firstName.fill(info.firstName);
+    // On slower engines (e.g. mobile WebKit) the form can finish rendering right after the first
+    // keystrokes and reset the first field. Re-fill until the value sticks instead of adding sleeps.
+    await expect(async () => {
+      await this.firstName.fill(info.firstName);
+      await expect(this.firstName).toHaveValue(info.firstName, { timeout: 500 });
+    }).toPass({ timeout: 10_000 });
     await this.lastName.fill(info.lastName);
     await this.postalCode.fill(info.postalCode);
     await this.continueButton.click();
