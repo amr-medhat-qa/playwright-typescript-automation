@@ -18,6 +18,21 @@ UI and API test automation framework built with **Playwright** and **TypeScript*
 | API           | [Restful-Booker](https://restful-booker.herokuapp.com/apidoc) — hotel booking REST API | Token auth, full CRUD (POST / GET / PUT / PATCH / DELETE), filtering, authorization (403), not-found (404)                     |
 | Accessibility | SauceDemo                                                                              | axe-core scans for **WCAG 2.1 AA** on every key page, tracked best-practice issues, keyboard-only login, accessible names      |
 | Visual        | SauceDemo                                                                              | Screenshot comparison of pages & components against Linux baselines, plus **detection of a real visual bug**                   |
+| Mobile        | SauceDemo on emulated **Pixel 7** (Chrome) and **iPhone 14** (Safari/WebKit)           | Login, single-column layout without horizontal scroll, tap to add to cart, full checkout, hamburger menu (logout, reset state) |
+| Known defects | SauceDemo `problem_user` / `error_user`                                                | 13 deliberate defects documented with `test.fail()` + `bug` annotations, each checked against a `standard_user` baseline       |
+
+## Mobile testing 📱
+
+Playwright emulates real devices (viewport, user agent, device scale factor, touch) — no physical phone needed.
+The `mobile-chrome` and `mobile-safari` projects run the same Page Objects as desktop, so one framework covers both.
+
+**Flaky test fixed the right way:** on mobile WebKit the checkout form sometimes finished rendering right after the first keystrokes and wiped the _First Name_ field (≈ 2 failures in 10 runs).
+Instead of adding a sleep, `CheckoutPage.fillInfo()` now re-fills the field until the value sticks (`expect(...).toPass()`) — 20/20 runs green afterwards.
+
+## Dependency updates 🤖
+
+**Dependabot** (`.github/dependabot.yml`) opens weekly PRs for npm packages and GitHub Actions; CI must pass before they are merged.
+Lint tooling is grouped into a single PR, and TypeScript 7 is held back until `typescript-eslint` supports it.
 
 ## Accessibility testing ♿
 
@@ -53,7 +68,7 @@ Every key page (login, login error, inventory, cart, checkout) is scanned with *
 ## Project structure
 
 ```
-├── .github/workflows/playwright.yml   # CI pipeline (matrix: api, ui-chromium, ui-firefox, a11y, visual)
+├── .github/workflows/playwright.yml   # CI pipeline (matrix: api, ui-chromium, ui-firefox, mobile-chrome, mobile-safari, a11y, visual)
 ├── src/
 │   ├── api/BookingClient.ts           # API client
 │   ├── data/                          # test data & factories
@@ -77,6 +92,7 @@ npx playwright install chromium firefox
 | `npm test`             | Run everything                                |
 | `npm run test:api`     | API tests only                                |
 | `npm run test:ui`      | UI tests (Chromium + Firefox)                 |
+| `npm run test:mobile`  | Mobile tests (Pixel 7 + iPhone 14)            |
 | `npm run test:smoke`   | `@smoke` tagged tests only                    |
 | `npm run test:headed`  | UI tests in a visible browser                 |
 | `npm run report`       | Open the last HTML report                     |

@@ -49,6 +49,16 @@ export default defineConfig({
       use: { ...devices['Desktop Firefox'], baseURL: UI_BASE_URL, testIdAttribute: 'data-test' },
     },
     {
+      name: 'mobile-chrome',
+      testDir: './tests/mobile',
+      use: { ...devices['Pixel 7'], baseURL: UI_BASE_URL, testIdAttribute: 'data-test' },
+    },
+    {
+      name: 'mobile-safari',
+      testDir: './tests/mobile',
+      use: { ...devices['iPhone 14'], baseURL: UI_BASE_URL, testIdAttribute: 'data-test' },
+    },
+    {
       name: 'a11y',
       testDir: './tests/a11y',
       use: { ...devices['Desktop Chrome'], baseURL: UI_BASE_URL, testIdAttribute: 'data-test' },

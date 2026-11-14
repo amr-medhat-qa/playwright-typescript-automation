@@ -1,4 +1,4 @@
-name: Playwright Tests
+﻿name: Playwright Tests
 
 on:
   push:
@@ -12,7 +12,7 @@ on:
         type: boolean
         default: false
   schedule:
-    - cron: '0 6 * * 1-5' # weekdays 06:00 UTC — catches changes in the apps under test
+    - cron: '0 6 * * 1-5' # weekdays 06:00 UTC â€” catches changes in the apps under test
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -52,7 +52,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        project: [api, ui-chromium, ui-firefox, a11y, visual]
+        project: [api, ui-chromium, ui-firefox, mobile-chrome, mobile-safari, a11y, visual]
 
     steps:
       - uses: actions/checkout@v4
@@ -70,7 +70,7 @@ jobs:
 
       - name: Install browsers
         if: matrix.project != 'api'
-        run: npx playwright install --with-deps ${{ matrix.project == 'ui-firefox' && 'firefox' || 'chromium' }}
+        run: npx playwright install --with-deps ${{ matrix.project == 'ui-firefox' && 'firefox' || matrix.project == 'mobile-safari' && 'webkit' || 'chromium' }}
 
       # Visual baselines must come from the same OS as the comparison (Linux), so CI creates them:
       # missing ones are generated automatically; all are regenerated when requested via workflow_dispatch.
