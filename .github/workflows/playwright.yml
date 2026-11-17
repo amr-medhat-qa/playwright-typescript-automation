@@ -1,4 +1,4 @@
-﻿name: Playwright Tests
+name: Playwright Tests
 
 on:
   push:
@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-node@v4
         with:
@@ -55,7 +55,7 @@ jobs:
         project: [api, ui-chromium, ui-firefox, mobile-chrome, mobile-safari, a11y, visual]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           # check out the branch itself (not the PR merge commit) so baselines can be pushed back to it
           ref: ${{ matrix.project == 'visual' && (github.head_ref || github.ref_name) || '' }}
@@ -118,7 +118,7 @@ jobs:
     if: ${{ !cancelled() && needs.test.result != 'skipped' }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-node@v4
         with:
