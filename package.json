@@ -36,7 +36,7 @@
     "@playwright/test": "^1.65.0",
     "@types/node": "^26.6.6",
     "allure-commandline": "^2.46.1",
-    "allure-playwright": "^3.14.0",
+    "allure-playwright": "^3.15.0",
     "eslint": "^10.14.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-playwright": "^2.12.2",
